@@ -30,8 +30,8 @@ class Claim:
     def send_to_subd(self):
         conn = sqlite3.connect("mydatabase.db")
         cursor = conn.cursor()
-        cursor.execute("""CREATE TABLE IF NOT EXISTS Claims(request_id TEXT PRIMARY KEY, user_id TEXT, email TEXT, api_name TEXT, text TEXT, label TEXT)""")
-        cursor.execute("""INSERT INTO Claims VALUES('{}', '{}', '{}', '{}', '{}', '{}')""".format(self.request_id, self.user_id, self.email, self.api_name, self.text, self.label))
+        cursor.execute("""CREATE TABLE IF NOT EXISTS Claims(request_id TEXT PRIMARY KEY, user_id TEXT, email TEXT, api_name TEXT, text TEXT, label TEXT, status TEXT)""")
+        cursor.execute("""INSERT INTO Claims VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}')""".format(self.request_id, self.user_id, self.email, self.api_name, self.text, self.label, "NEW"))
         cursor.close()
         conn.commit()
 
@@ -49,6 +49,7 @@ def from_api():
     claim = Claim(eval(list(request.form.to_dict())[0]))
     claim.send_to_subd()
     return claim.request_id
+
 
 def recognize(buffer: io.BytesIO, language='ru-RU') -> str:
     r = sr.Recognizer()
@@ -70,6 +71,40 @@ def sound_from_api():
     claim.send_to_subd()
     return claim.request_id
 
+
+@app.route("/get_requests_by_user_id/<user_id>")
+def get_user_requests(user_id):
+    conn = sqlite3.connect("mydatabase.db")
+    cursor = conn.cursor()
+    cur = cursor.execute("""SELECT * FROM Claims WHERE user_id == '{}'""".format(user_id))
+    rows = cur.fetchall()
+    cursor.close()
+    conn.commit()
+    return tuple([row[0] for row in rows])
+
+
+@app.route("/get_status_by_request_id/<request_id>")
+def get_status(request_id):
+    conn = sqlite3.connect("mydatabase.db")
+    cursor = conn.cursor()
+    cur = cursor.execute("""SELECT * FROM Claims WHERE request_id == '{}'""".format(request_id))
+    rows = cur.fetchall()
+    cursor.close()
+    conn.commit()
+    if len(rows) == 0:
+        return "UNDEF"
+    else:
+        return rows[0][-1]
+
+@app.route("/get_requests_with_status/<status>")
+def get_next_request(status):
+    conn = sqlite3.connect("mydatabase.db")
+    cursor = conn.cursor()
+    cur = cursor.execute("""SELECT * FROM Claims WHERE status == '{}'""".format(status))
+    rows = cur.fetchall()
+    cursor.close()
+    conn.commit()
+    return tuple([row[0] for row in rows])
 
 if __name__ == "__main__":
     app.run(debug=True)
