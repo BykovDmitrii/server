@@ -38,7 +38,7 @@ class Claim:
 
 @app.route('/ourfront', methods=["POST"])
 def from_our_front():
-    claim = Claim(eval(list(request.form.to_dict())[0]))
+    claim = Claim(eval(request.data))
     claim.send_to_subd()
     return claim.request_id
 
@@ -46,7 +46,7 @@ def from_our_front():
 
 @app.route('/api', methods=["POST"])
 def from_api():
-    claim = Claim(eval(list(request.form.to_dict())[0]))
+    claim = Claim(eval(request.data))
     claim.send_to_subd()
     return claim.request_id
 
