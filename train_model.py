@@ -27,7 +27,7 @@ class ClassifierModel:
         self.ids_to_labels = {val: key for key, val in labels_to_ids.items()}
 
     def predict(self, X):
-        result = self.predictor.predict(self.encoder.transform(X))[0]
+        result = self.predictor.predict(self.encoder.transform([X]))[0]
         return self.ids_to_labels[result]
 
 
