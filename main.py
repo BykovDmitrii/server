@@ -117,4 +117,4 @@ def get_next_request(status):
     return str([row[0] for row in rows])
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
