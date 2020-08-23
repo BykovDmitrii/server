@@ -5,9 +5,17 @@ import io
 import uuid
 from pydantic import BaseModel
 import speech_recognition as sr
+from train_model import train
+import pickle
 
 app = Flask(__name__)
-
+try:
+    with open('model.bin', 'rb') as f:
+        model = pickle.load(f)
+except:
+    model = train('csv_parsed_data/')
+    with open('model.bin', 'wb') as f:
+        pickle.dump(model, f)
 
 def request_id_generator():
     from time import time
@@ -19,7 +27,7 @@ class Claim:
     def __init__(self, parsed_json):
         self.text = parsed_json["text"]
         self.email = parsed_json.get("email", "None")
-        self.label = parsed_json.get("label", "None")
+        self.label = parsed_json.get("label", model.predict([self.text]))
         self.api_name = parsed_json.get("api_name", "None")
         self.user_id = parsed_json.get("user_id", "None")
         self.request_id = str(request_id_generator())
