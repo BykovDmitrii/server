@@ -67,7 +67,9 @@ def sound_from_api():
     data = eval(request.json['audio'])
     bytes_io = io.BytesIO(data)
     text = recognize(bytes_io)
-    claim = Claim(dict(text=text))
+    result_data = dict(request.json)
+    result_data['text'] = text
+    claim = Claim(result_data)
     claim.send_to_subd()
     return claim.request_id
 
