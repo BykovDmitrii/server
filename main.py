@@ -80,7 +80,7 @@ def get_user_requests(user_id):
     rows = cur.fetchall()
     cursor.close()
     conn.commit()
-    return tuple([row[0] for row in rows])
+    return str([row[0] for row in rows])
 
 
 @app.route("/get_status_by_request_id/<request_id>")
@@ -104,7 +104,7 @@ def get_next_request(status):
     rows = cur.fetchall()
     cursor.close()
     conn.commit()
-    return tuple([row[0] for row in rows])
+    return str([row[0] for row in rows])
 
 if __name__ == "__main__":
     app.run(debug=True)
